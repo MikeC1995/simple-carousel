@@ -1,6 +1,6 @@
 //REWRITE TO ALLOW VERTICAL CAROUSEL
-// ***** TODO: carousel needs support for varying size cards! *****
 // ***** TODO: can remove use of padding argument! The messages currently supploy padding=0 and instead
+// ***** TODO: non-unique ids for multiple carousels!!
 // a class "message" is applied to each card, and the padding is then set in the css!
 
 //_this         = a copy of the caller's 'this' object which can be used by the callback
@@ -54,15 +54,15 @@ carousel.prototype.init = function(){
     $.each(this.cardList, function(index, obj) {
         var css_string = (_this.cardSize == null) ? '' : 'style="width:' + _this.cardSize[0].toString() + 'px; ' +
                                                          'height:' + _this.cardSize[1].toString() + 'px; ';
-        carouselContainer = carouselContainer + '<div ' + 
-            'id=' + _this.ids[index] + ' ' + 
-            css_string + 
+        carouselContainer = carouselContainer + '<div ' +
+            'id=' + _this.ids[index] + ' ' +
+            css_string +
             'padding: 0 ' + _this.padding + 'px; ' +
             'display: ' + ((_this.isHorizontal) ? 'inline-block;' : 'block;') + '">' + obj + '</div>';
     });
     carouselContainer = carouselContainer + '</div>';
     this.containerDiv.append(carouselContainer);
-    
+
     var css_string;
     if(this.isHorizontal) {
         css_string = (_this.cardSize == null) ? 'auto;' : _this.cardSize[1].toString() + 'px;';
@@ -73,12 +73,12 @@ carousel.prototype.init = function(){
         $('#carouselContainer').css({   'height': _this.recalcSize(_this.cardList.length).toString() + 'px;',
                                         'width': css_string });
     }
-    
+
     //attach callbacks, (passing the card's id to the callback)
     for(var i = 0; i < this.cardList.length; i++) {
         $('#' + _this.ids[i]).on('click', function(e) {
             //call the callback but make sure its 'this' object is whatever
-            //called the carousel... otherwise the carousel's 'this' object 
+            //called the carousel... otherwise the carousel's 'this' object
             //will be referenced by the callback when it uses the keyword 'this' !!
             _this.callback.call(_this._callingThis, this.id);
         });
@@ -113,4 +113,25 @@ carousel.prototype.recalcSize = function(numCards) {
         if(this.isHorizontal) { $('#carouselContainer').width(size); } else { $('#carouselContainer').height(size); }
     }
     return size;
+}
+
+// Add a card to the end of the carousel
+// id     ::  the unique id for the new card
+// item   ::  the html for the new card
+carousel.prototype.addCard = function(id, item) {
+  var _this = this;
+  _this.ids.push(id);
+  _this.cardList.push(item);
+  var css_string = (_this.cardSize == null) ? '' : 'style="width:' + _this.cardSize[0].toString() + 'px; ' +
+                                                   'height:' + _this.cardSize[1].toString() + 'px; ';
+  var cardHtml =
+    '<div ' +
+      'id=' + id + ' ' +
+      css_string +
+      'padding: 0 ' + _this.padding + 'px; ' +
+      'display: ' + ((_this.isHorizontal) ? 'inline-block;' : 'block;') + '">' + item +
+    '</div>';
+
+  $('#carouselContainer').append(cardHtml);
+  _this.recalcSize(_this.cardList.length);
 }
